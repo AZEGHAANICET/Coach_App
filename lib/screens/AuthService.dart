@@ -2,8 +2,6 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final StreamController<User?> _userStream=  StreamController<User>();
   Stream<User?> get userStream=>_userStreamController.stream;
-  User? _currentUser;
-  User? get currentUser=> _currentUser;
   
   AuthService(){
     _auth.authStateChanges().listen((user) {
@@ -29,7 +27,11 @@ class AuthService {
             content: Text(
                 'Inscription Effectué avec succès. Un email de vérification vous a été envoyé.'),),
       );
-         _userStreamController.add(_currentUser);
+      String uid = userCredential.user?.uid??'';
+      bool isAdmin = await checkIfUserIsAdmin(uid);
+      User user = User(uid:uid, email:userCredential.user?email??'', 
+                       isAdmin: isAdmin,);
+      _userStreamController.add(user);
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Registration failed.';
 
@@ -56,7 +58,9 @@ class AuthService {
       if (userCredential.user != null &&
           userCredential.user!.emailVerified) {
         showSnackBar(content: Text('Login successful'));
-         _userStreamController.add(_currentUser);
+         User user = User(uid:uid, email:userCredential.user?email??'', 
+                       isAdmin: isAdmin,);
+          _userStreamController.add(user);
       } else {
         showSnackBar(
             content: Text(
@@ -77,8 +81,7 @@ class AuthService {
 
 Future<void> signOut() async {
     await _auth.signOut();
-    _currentUser = null;
-    _userStreamController.add(_currentUser);
+    _userStreamController.add(null);
   }
 
   
@@ -116,5 +119,9 @@ Future<void> signOut() async {
         duration: Duration(seconds: 3),
       ),
     );
+  }
+
+Future<bool> checkIfUserIsAdmin(String uid) async {
+    return uid == 'S6aRKYdYXKhHizrib3KlcD882vs1';
   }
 }
