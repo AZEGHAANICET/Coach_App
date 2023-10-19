@@ -4,6 +4,7 @@ import 'package:flutter_coach_app/widgets/user_picker_image.dart';
 import 'package:flutter_coach_app/screens/authentication_service.dart';
 
 final AuthService _authService = AuthService();
+
 class AuthenticationScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -20,20 +21,20 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
   final _form = GlobalKey<FormState>();
 
-  void _submit(){
+  void _submit() {
     final isValidForm = _form.currentState!.validate();
     if (!isValidForm || !_isLogin) {
       return;
     }
     _form.currentState!.save();
-      setState(() {
-        _isAuthenticated = true;
-      });
-      if (_isLogin) {
-      _authService.signIn(_email_enter, _password);
-      } else {
-     _authService.signUpWithEmail(_email_enter, _password);
-      }
+    setState(() {
+      _isAuthenticated = true;
+    });
+    if (_isLogin) {
+      _authService.signIn(_email_enter, _password, context);
+    } else {
+      _authService.signUpWithEmail(_email_enter, _password, context);
+    }
     setState(() {
       _isAuthenticated = false;
     });
@@ -143,6 +144,4 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
       )),
     );
   }
-
-
 }

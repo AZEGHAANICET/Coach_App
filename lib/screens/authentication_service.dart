@@ -1,25 +1,34 @@
-import 'package:flutter_coach_app/model/user.dart'
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_coach_app/model/user.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final StreamController<User?> _userStream=  StreamController<User>();
-  Stream<User?> get userStream=>_userStreamController.stream;
-  User? _currentUser;
-  
-  AuthService(){
+  final StreamController<UserModel?> _userStream =
+      StreamController<UserModel>();
+  Stream<UserModel?> get userStream => _userStream.stream;
+  UserModel? _currentUser;
+  late bool isAdmin;
+  AuthService() {
     _auth.authStateChanges().listen((User? user) {
       if (user == null) {
         _currentUser = null;
       } else {
-        _currentUser = User(uid: user.uid ?? '',
+        _currentUser = UserModel(
+          uid: user.uid ?? '',
           email: user.email ?? '',
-          isAdmin: isAdmin,);
+          isAdmin: isAdmin,
+        );
       }
-      _userStreamController.add(_currentUser);
+      print(_currentUser);
+      _userStream.add(_currentUser);
     });
   }
-  
-  Future<void> signUpWithEmail(String email, String password) async {
+
+  Future<void> signUpWithEmail(
+      String email, String password, BuildContext context) async {
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -27,53 +36,65 @@ class AuthService {
         password: password,
       );
       await sendEmailVerification(email);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Inscription Effectué avec succès. Un email de vérification vous a été envoyé.'),),
+        const SnackBar(
+          content: Text(
+              'Inscription Effectué avec succès. Un email de vérification vous a été envoyé.'),
+        ),
       );
-      String uid = userCredential.user?.uid??'';
+      String uid = userCredential.user?.uid ?? '';
       bool isAdmin = await checkIfUserIsAdmin(uid);
-      
-      User user =User(uid: uid,email: userCredential.user!.email ?? '',isAdmin: isAdmin,);
-      
-      _userStreamController.add(user);//declenche la fonction de rappel celle appelé dans le constructeur
-      
+
+      UserModel user = UserModel(
+        uid: uid,
+        email: userCredential.user!.email ?? '',
+        isAdmin: isAdmin,
+      );
+
+      _userStream.add(
+          user); //declenche la fonction de rappel celle appelé dans le constructeur
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Registration failed.';
 
       if (error.code == 'email-already-in-use') {
-        errorMessage = 'L\'adresse email que vous avez entré a déjà été utilisé.';
+        errorMessage =
+            'L\'adresse email que vous avez entré a déjà été utilisé.';
       }
-      showSnackBar(content: Text(errorMessage));
+      // ignore: use_build_context_synchronously
+      showSnackBar(content: Text(errorMessage), context: context);
     }
   }
-  
 
   Future<void> sendEmailVerification(String email) async {
     User? user = FirebaseAuth.instance.currentUser;
     await user?.sendEmailVerification();
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(
+      String email, String password, BuildContext context) async {
     try {
-      UserCredential userCredential =
-          await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       if (userCredential.user != null && userCredential.user!.emailVerified) {
-        showSnackBar(content: Text('Login successful'));
+        // ignore: use_build_context_synchronously
+        showSnackBar(content: const Text('Login successful'), context: context);
         String uid = userCredential.user!.uid;
         bool isAdmin = await checkIfUserIsAdmin(uid);
-         User user = User(uid:uid, email:userCredential.user!.email??'', 
-                       isAdmin: isAdmin,);
-          _userStreamController.add(user);
+        UserModel user = UserModel(
+          uid: uid,
+          email: userCredential.user!.email ?? '',
+          isAdmin: isAdmin,
+        );
+        _userStream.add(user);
       } else {
+        // ignore: use_build_context_synchronously
         showSnackBar(
-            content: Text(
-                'Echec de connexion. Vérifié votre adresse email.'));
-        
+            content:
+                const Text('Echec de connexion. Vérifié votre adresse email.'),
+            context: context);
       }
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Authentication failed.';
@@ -83,16 +104,16 @@ class AuthService {
       } else if (error.code == 'wrong-password') {
         errorMessage = 'Incorrect password. Try again!!';
       }
-      showSnackBar(content: Text(errorMessage));
+      // ignore: use_build_context_synchronously
+      showSnackBar(content: Text(errorMessage), context: context);
     }
   }
 
-Future<void> signOut() async {
+  Future<void> signOut() async {
     await _auth.signOut();
-    _userStreamController.add(null);
+    _userStream.add(null);
   }
 
-  
   bool isValidEmail(String email) {
     final RegExp emailRegex = RegExp(
       r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -119,17 +140,17 @@ Future<void> signOut() async {
     return true;
   }
 
-  void showSnackBar({required Widget content}) {
+  void showSnackBar({required Widget content, required BuildContext context}) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: content,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
 
-Future<bool> checkIfUserIsAdmin(String uid) async {
+  Future<bool> checkIfUserIsAdmin(String uid) async {
     return uid == 'S6aRKYdYXKhHizrib3KlcD882vs1';
   }
 }
