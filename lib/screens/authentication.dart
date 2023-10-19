@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_coach_app/widgets/user_picker_image.dart';
-import 'package:flutter_coach_app/screens/AuthService.dart';
+import 'package:flutter_coach_app/screens/authentication_service.dart';
 
-final _firebase = FirebaseAuth.instance;
+final AuthService _authService = AuthService();
 class AuthenticationScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -17,7 +17,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   var _email_enter = '';
   var _password = '';
   var _isObscure = true;
-  final AuthService _authService = AuthService();
+
   final _form = GlobalKey<FormState>();
 
   void _submit(){
