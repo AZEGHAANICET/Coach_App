@@ -1,6 +1,21 @@
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  final StreamController<User?> _userStream=  StreamController<User>();
+  Stream<User?> get userStream=>_userStreamController.stream;
+  User? _currentUser;
+  User? get currentUser=> _currentUser;
+  
+  AuthService(){
+    _auth.authStateChanges().listen((user) {
+      if (user == null) {
+        _currentUser = null;
+      } else {
+        _currentUser = User(email: user.email ?? "", motDepasse: "", image: "");
+      }
+      _userStreamController.add(_currentUser);
+    });
+  }
+  
   Future<void> signUpWithEmail(String email, String password) async {
     try {
       UserCredential userCredential =
@@ -12,8 +27,9 @@ class AuthService {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                'Inscription Effectué avec succès. Un email de vérification vous a été envoyé.')),
+                'Inscription Effectué avec succès. Un email de vérification vous a été envoyé.'),),
       );
+         _userStreamController.add(_currentUser);
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Registration failed.';
 
@@ -40,10 +56,12 @@ class AuthService {
       if (userCredential.user != null &&
           userCredential.user!.emailVerified) {
         showSnackBar(content: Text('Login successful'));
+         _userStreamController.add(_currentUser);
       } else {
         showSnackBar(
             content: Text(
                 'Echec de connexion. Vérifié votre adresse email.'));
+        
       }
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Authentication failed.';
@@ -57,6 +75,13 @@ class AuthService {
     }
   }
 
+Future<void> signOut() async {
+    await _auth.signOut();
+    _currentUser = null;
+    _userStreamController.add(_currentUser);
+  }
+
+  
   bool isValidEmail(String email) {
     final RegExp emailRegex = RegExp(
       r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
