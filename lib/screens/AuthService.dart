@@ -4,13 +4,16 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final StreamController<User?> _userStream=  StreamController<User>();
   Stream<User?> get userStream=>_userStreamController.stream;
+  User? _currentUser;
   
   AuthService(){
-    _auth.authStateChanges().listen((user) {
+    _auth.authStateChanges().listen((User? user) {
       if (user == null) {
         _currentUser = null;
       } else {
-        _currentUser = User(email: user.email ?? "", motDepasse: "", image: "");
+        _currentUser = User(uid: user.uid ?? '',
+          email: user.email ?? '',
+          isAdmin: isAdmin,);
       }
       _userStreamController.add(_currentUser);
     });
@@ -31,9 +34,11 @@ class AuthService {
       );
       String uid = userCredential.user?.uid??'';
       bool isAdmin = await checkIfUserIsAdmin(uid);
-      User user = User(uid:uid, email:userCredential.user?email??'', 
-                       isAdmin: isAdmin,);
-      _userStreamController.add(user);
+      
+      User user =User(uid: uid,email: userCredential.user!.email ?? '',isAdmin: isAdmin,);
+      
+      _userStreamController.add(user);//declenche la fonction de rappel celle appelé dans le constructeur
+      
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Registration failed.';
 
@@ -57,10 +62,11 @@ class AuthService {
         email: email,
         password: password,
       );
-      if (userCredential.user != null &&
-          userCredential.user!.emailVerified) {
+      if (userCredential.user != null && userCredential.user!.emailVerified) {
         showSnackBar(content: Text('Login successful'));
-         User user = User(uid:uid, email:userCredential.user?email??'', 
+        String uid = userCredential.user!.uid;
+        bool isAdmin = await checkIfUserIsAdmin(uid);
+         User user = User(uid:uid, email:userCredential.user!.email??'', 
                        isAdmin: isAdmin,);
           _userStreamController.add(user);
       } else {
