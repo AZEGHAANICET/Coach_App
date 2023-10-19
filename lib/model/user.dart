@@ -1,8 +1,8 @@
 class User {
-  String email = "";
-  String motDepasse = "";
-  bool isAdmin = false;
-  String image = "";
+  late String email ;
+  late String motDepasse;
+  late bool isAdmin = false;
+  late image = "";
   void set_status(bool status) {
     isAdmin = status;
   }
