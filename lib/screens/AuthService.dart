@@ -12,17 +12,18 @@ class AuthService {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                'Registration successful. A verification email has been sent.')),
+                'Inscription Effectué avec succès. Un email de vérification vous a été envoyé.')),
       );
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Registration failed.';
 
       if (error.code == 'email-already-in-use') {
-        errorMessage = 'This email address is already in use.';
+        errorMessage = 'L\'adresse email que vous avez entré a déjà été utilisé.';
       }
       showSnackBar(content: Text(errorMessage));
     }
   }
+  
 
   Future<void> sendEmailVerification(String email) async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -42,7 +43,7 @@ class AuthService {
       } else {
         showSnackBar(
             content: Text(
-                'Login failed. Please verify your email during registration.'));
+                'Echec de connexion. Vérifié votre adresse email.'));
       }
     } on FirebaseAuthException catch (error) {
       String errorMessage = 'Authentication failed.';
