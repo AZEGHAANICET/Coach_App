@@ -19,31 +19,22 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   var _isObscure = true;
   final _form = GlobalKey<FormState>();
 
-  void _submit() async {
+  void _submit(){
     final isValidForm = _form.currentState!.validate();
     if (!isValidForm || !_isLogin) {
       return;
     }
 
     _form.currentState!.save();
-    try {
       setState(() {
         _isAuthenticated = true;
       });
       if (_isLogin) {
-        final userCredential = await _firebase.signInWithEmailAndPassword(
-            email: _email_enter, password: _password);
+        signIn(_email_enter,_password);
       } else {
-        final userCredential = await _firebase.createUserWithEmailAndPassword(
-            email: _email_enter, password: _password);
-        print(userCredential);
+        signUpWithEmail(_email_enter,_password);
       }
-    } on FirebaseAuthException catch (error) {
-      if (error.code == 'email-already-in_use') {}
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.message ?? 'Authentication failed.')));
-    }
+   
 
     setState(() {
       _isAuthenticated = true;
@@ -155,6 +146,59 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     );
   }
 
+
+
+Future<void> signUpWithEmail(String email, String password) async {
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    await sendEmailVerification(email);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Inscription réussie. Un e-mail de vérification a été envoyé.')),
+    );
+  } on FirebaseAuthException catch (error) {
+    String errorMessage = 'Une erreur d\'inscription s\'est produite.';
+
+    if (error.code == 'email-already-in-use') {
+      errorMessage = 'Cette adresse e-mail est déjà utilisée.';
+    }
+    showSnackBar(content: Text(errorMessage));
+  }
+}
+
+Future<void> sendEmailVerification(String email) async {
+  User? user = FirebaseAuth.instance.currentUser;
+  await user?.sendEmailVerification();
+}
+  
+Future<void> signIn(String email, String password) async {
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    if(userCredential.user!=null && userCredential.user!.emailVerified){
+      showSnackBar(content: Text('Connexion effectuée avec succès'));
+    }
+    else{
+       showSnackBar(content: Text('Echec de connexion vous n\'avez pas vérifié votre email lors de votre inscription'));
+    }
+  } on FirebaseAuthException catch (error) {
+    String errorMessage = 'Une erreur d\'authentification s\'est produite.';
+
+    if (error.code == 'user-not-found') {
+      errorMessage = 'Aucun utilisateur trouvé avec cette adresse e-mail.';
+    } else if (error.code == 'wrong-password') {
+      errorMessage = 'Le mot de passe est incorrect.Try again!!';
+    }
+    showSnackBar(content: Text(errorMessage));
+  }
+}
+
+
+  
   bool isValidEmail(String email) {
     // Expression régulière pour valider une adresse e-mail
     final RegExp emailRegex = RegExp(
@@ -181,4 +225,18 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     }
     return true;
   }
+
+
+
+
+
+  void showSnackBar({required Widget content}) {
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: content,
+      duration: Duration(seconds: 3), 
+    ),
+  );
+}
 }
