@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_coach_app/widgets/user_picker_image.dart';
+import 'package:flutter_coach_app/screens/AuthService.dart';
 
 final _firebase = FirebaseAuth.instance;
 class AuthenticationScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   var _email_enter = '';
   var _password = '';
   var _isObscure = true;
+  final AuthService _authService = AuthService();
   final _form = GlobalKey<FormState>();
 
   void _submit(){
@@ -71,7 +73,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                       ),
                     TextFormField(
                       validator: (value) {
-                        if (!isValidEmail(value!)) {
+                        if (!_authService.isValidEmail(value!)) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -88,7 +90,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                     ),
                     TextFormField(
                       validator: (value) {
-                        if (!isPasswordValid(value!)) {
+                        if (!_authService.isPasswordValid(value!)) {
                           return 'Please enter a valide password';
                         }
                         return null;
