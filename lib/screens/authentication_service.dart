@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_coach_app/model/user.dart';
 
 class AuthService {
@@ -9,103 +8,19 @@ class AuthService {
   final StreamController<UserModel?> _userStream =
       StreamController<UserModel>();
   Stream<UserModel?> get userStream => _userStream.stream;
-  UserModel? _currentUser;
   late bool isAdmin;
-  AuthService() {
-    _auth.authStateChanges().listen((User? user) {
-      if (user == null) {
-        _currentUser = null;
-      } else {
-        _currentUser = UserModel(
-          uid: user.uid ?? '',
-          email: user.email ?? '',
-          isAdmin: isAdmin,
-        );
-      }
-      print(_currentUser);
-      _userStream.add(_currentUser);
-    });
-  }
-
-  Future<void> signUpWithEmail(
-      String email, String password, BuildContext context) async {
-    try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await sendEmailVerification(email);
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Inscription Effectué avec succès. Un email de vérification vous a été envoyé.'),
-        ),
-      );
-      String uid = userCredential.user?.uid ?? '';
-      bool isAdmin = await checkIfUserIsAdmin(uid);
-
-      UserModel user = UserModel(
-        uid: uid,
-        email: userCredential.user!.email ?? '',
-        isAdmin: isAdmin,
-      );
-
-      _userStream.add(
-          user); //declenche la fonction de rappel celle appelé dans le constructeur
-    } on FirebaseAuthException catch (error) {
-      String errorMessage = 'Registration failed.';
-
-      if (error.code == 'email-already-in-use') {
-        errorMessage =
-            'L\'adresse email que vous avez entré a déjà été utilisé.';
-      }
-      // ignore: use_build_context_synchronously
-      showSnackBar(content: Text(errorMessage), context: context);
-    }
-  }
 
   Future<void> sendEmailVerification(String email) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    await user?.sendEmailVerification();
-  }
-
-  Future<void> signIn(
-      String email, String password, BuildContext context) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      if (userCredential.user != null && userCredential.user!.emailVerified) {
-        // ignore: use_build_context_synchronously
-        showSnackBar(content: const Text('Login successful'), context: context);
-        String uid = userCredential.user!.uid;
-        bool isAdmin = await checkIfUserIsAdmin(uid);
-        UserModel user = UserModel(
-          uid: uid,
-          email: userCredential.user!.email ?? '',
-          isAdmin: isAdmin,
-        );
-        _userStream.add(user);
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
       } else {
-        // ignore: use_build_context_synchronously
-        showSnackBar(
-            content:
-                const Text('Echec de connexion. Vérifié votre adresse email.'),
-            context: context);
+        print("L'utilisateur est déjà vérifié ou n'est pas connecté.");
       }
-    } on FirebaseAuthException catch (error) {
-      String errorMessage = 'Authentication failed.';
-
-      if (error.code == 'user-not-found') {
-        errorMessage = 'No user found with this email address.';
-      } else if (error.code == 'wrong-password') {
-        errorMessage = 'Incorrect password. Try again!!';
-      }
-      // ignore: use_build_context_synchronously
-      showSnackBar(content: Text(errorMessage), context: context);
+    } catch (e) {
+      print(
+          "Une erreur s'est produite lors de l'envoi de l'e-mail de vérification : $e");
     }
   }
 
@@ -138,16 +53,6 @@ class AuthService {
       return false;
     }
     return true;
-  }
-
-  void showSnackBar({required Widget content, required BuildContext context}) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: content,
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 
   Future<bool> checkIfUserIsAdmin(String uid) async {
