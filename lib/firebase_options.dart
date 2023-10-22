@@ -25,7 +25,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -44,38 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDKe8sfL7TqSF5T6EsEHpDeuztiHaiwtvI',
-    appId: '1:759534976084:web:6e640ef4a89a9499ddc1c1',
-    messagingSenderId: '759534976084',
-    projectId: 'coachapp-59978',
-    authDomain: 'coachapp-59978.firebaseapp.com',
-    storageBucket: 'coachapp-59978.appspot.com',
-    measurementId: 'G-NY7HG3KJLX',
+    apiKey: 'AIzaSyDQwemVXnIcE4gvXM19t00wzDWc0riE5KE',
+    appId: '1:49773168759:web:9859429929f4a53a669e72',
+    messagingSenderId: '49773168759',
+    projectId: 'flutter-coach-app',
+    authDomain: 'flutter-coach-app.firebaseapp.com',
+    storageBucket: 'flutter-coach-app.appspot.com',
+    measurementId: 'G-XVHPC58502',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC_yg0_QQuBI7xi2H3hVXvN7O0pvt6YGxk',
-    appId: '1:759534976084:android:d104fdce24dc5698ddc1c1',
-    messagingSenderId: '759534976084',
-    projectId: 'coachapp-59978',
-    storageBucket: 'coachapp-59978.appspot.com',
+    apiKey: 'AIzaSyBsTxahFh7dA_5Xcuvdk551ilxmi9zKLTc',
+    appId: '1:49773168759:android:811466f61b5795a9669e72',
+    messagingSenderId: '49773168759',
+    projectId: 'flutter-coach-app',
+    storageBucket: 'flutter-coach-app.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAWcYh_a9SHGosQ5DPCs_sH138eRKgW8yE',
-    appId: '1:759534976084:ios:566d75424b5a050eddc1c1',
-    messagingSenderId: '759534976084',
-    projectId: 'coachapp-59978',
-    storageBucket: 'coachapp-59978.appspot.com',
+    apiKey: 'AIzaSyAMlTtMHNJK_pc3EmvahCN5UWn0w20jOJM',
+    appId: '1:49773168759:ios:5b8f2552740c8b87669e72',
+    messagingSenderId: '49773168759',
+    projectId: 'flutter-coach-app',
+    storageBucket: 'flutter-coach-app.appspot.com',
     iosBundleId: 'com.example.flutterCoachApp',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAWcYh_a9SHGosQ5DPCs_sH138eRKgW8yE',
-    appId: '1:759534976084:ios:8f7098e9999031b7ddc1c1',
-    messagingSenderId: '759534976084',
-    projectId: 'coachapp-59978',
-    storageBucket: 'coachapp-59978.appspot.com',
-    iosBundleId: 'com.example.flutterCoachApp.RunnerTests',
   );
 }
