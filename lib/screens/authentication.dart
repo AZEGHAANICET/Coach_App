@@ -125,7 +125,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     return MaterialApp(
         scaffoldMessengerKey: _scaffoldMessengerKey,
         home: Scaffold(
-          backgroundColor: Colors.deepOrangeAccent[100],
+          backgroundColor: Color(0xFF3498db),
           body: SingleChildScrollView(
               child: Column(
             children: [
@@ -133,7 +133,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                 height: 50,
               ),
               const Icon(
-                Icons.login,
+                Icons.lock,
                 size: 80,
               ),
               Card(
@@ -153,28 +153,15 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                               _selectedImage = pickedImage;
                             }),
                           ),
-                        TextFormField(
-                          validator: (value) {
-                            if (!_authService.isValidEmail(value!)) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _emailEnter = value!;
-                          },
-                          decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.mail),
-                              labelText: 'Entrer votre adresse mail'),
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
                         if (!_isLogin)
                           TextFormField(
-                            decoration:
-                                const InputDecoration(labelText: 'Username'),
+                            decoration: const InputDecoration(
+                              prefixIcon: Icon(Icons.person_4),
+                              labelText: 'Username',
+                              hintStyle: TextStyle(
+                                color: Color(0xFF3498db),
+                              ),
+                            ),
                             enableSuggestions: false,
                             validator: (value) {
                               if (value == null ||
@@ -190,6 +177,22 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                           ),
                         TextFormField(
                           validator: (value) {
+                            if (!_authService.isValidEmail(value!)) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            _emailEnter = value!;
+                          },
+                          decoration: const InputDecoration(
+                              hintStyle: TextStyle(color: Color(0xFF3498db)),
+                              prefixIcon: Icon(Icons.mail),
+                              labelText: 'Entrer votre adresse mail'),
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        TextFormField(
+                          validator: (value) {
                             if (!_authService.isPasswordValid(value!)) {
                               return 'Please enter a valide password';
                             }
@@ -197,17 +200,19 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                           },
                           onSaved: (value) => _password = value!,
                           decoration: InputDecoration(
-                              suffixIcon: IconButton(
-                                  icon: Icon(_isObscure
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isObscure = !_isObscure;
-                                    });
-                                  }),
-                              prefixIcon: Icon(Icons.fingerprint),
-                              labelText: 'Entrer votre mot de passe'),
+                            suffixIcon: IconButton(
+                                icon: Icon(_isObscure
+                                    ? Icons.visibility
+                                    : Icons.visibility_off),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure = !_isObscure;
+                                  });
+                                }),
+                            prefixIcon: Icon(Icons.fingerprint),
+                            labelText: 'Entrer votre mot de passe',
+                            hintStyle: TextStyle(color: Color(0xFF3498db)),
+                          ),
                           obscureText: _isObscure,
                           autocorrect: false,
                           textCapitalization: TextCapitalization.none,
@@ -220,6 +225,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStatePropertyAll(Colors.orange)),
                               onPressed: () => _submit(),
                               icon: const Icon(Icons.person),
                               label: Text(

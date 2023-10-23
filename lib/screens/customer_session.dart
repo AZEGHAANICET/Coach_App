@@ -34,7 +34,7 @@ class _CustomerSessionState extends State<CustomerSession> {
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             print(snapshot.data);
-            return Center(
+            return const Center(
               child: Text('Aucune séance pour le moment'),
             );
           } else {
@@ -47,16 +47,13 @@ class _CustomerSessionState extends State<CustomerSession> {
                 final jour = session["jour"];
                 final date = session["date"];
                 final description = session["description"];
-                return Card(
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.fitness_center,
-                      color: Colors.red,
-                    ),
-                    title: Text("$subject  $date"),
-                    subtitle: Text("$description"),
-                    trailing: const Icon(Icons.more_vert),
+                return ListTile(
+                  leading: Icon(
+                    Icons.fitness_center,
+                    color: Colors.red,
                   ),
+                  title: Text("$subject  $date"),
+                  subtitle: Text("$description"),
                 );
               },
             );
@@ -78,8 +75,8 @@ class _CustomerSessionState extends State<CustomerSession> {
           .get();
       print(userQuery.docs.isNotEmpty);
       if (userQuery.docs.isNotEmpty) {
-        QueryDocumentSnapshot first = userQuery.docs[0];
-        String nameGroup = first["nameGroup"];
+        // QueryDocumentSnapshot first = userQuery.docs[0];
+        //String nameGroup = first["nameGroup"];
 
         // Create a query that listens for changes to the 'Session' collection
         Stream<QuerySnapshot> sessionQueryStream =

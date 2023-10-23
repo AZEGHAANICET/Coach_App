@@ -24,11 +24,6 @@ class AuthService {
     }
   }
 
-  Future<void> signOut() async {
-    await _auth.signOut();
-    _userStream.add(null);
-  }
-
   bool isValidEmail(String email) {
     final RegExp emailRegex = RegExp(
       r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -37,7 +32,7 @@ class AuthService {
   }
 
   bool isPasswordValid(String password) {
-    if (password == null || password.isEmpty) {
+    if (password.isEmpty) {
       return false;
     }
     if (password.length < 8) {
