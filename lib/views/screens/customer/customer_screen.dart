@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_coach_app/screens/availability_coach.dart';
-import 'package:flutter_coach_app/screens/customer_session.dart';
-import 'package:flutter_coach_app/screens/profile.dart';
+import 'package:flutter_coach_app/views/screens/coach/availability_coach.dart';
+import 'package:flutter_coach_app/views/screens/customer/customer_session.dart';
+import 'package:flutter_coach_app/views/screens/common/profile.dart';
 
 class CustomerScreen extends StatefulWidget {
   const CustomerScreen({super.key});

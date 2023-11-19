@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_coach_app/repository/seance_repository.dart';
 
 class CustomerSession extends StatefulWidget {
   @override
@@ -16,6 +17,9 @@ class _CustomerSessionState extends State<CustomerSession> {
   void initState() {
     super.initState();
     sessionsStream = createSessionsStream();
+    sessionsStream = SessionRepository.getSessionFromUser(
+            FirebaseAuth.instance.currentUser as String)
+        as Stream<List<Map<String, String>>>;
   }
 
   @override
@@ -44,7 +48,6 @@ class _CustomerSessionState extends State<CustomerSession> {
               itemBuilder: (context, index) {
                 final session = sessions[index];
                 final subject = session["subject"];
-                final jour = session["jour"];
                 final date = session["date"];
                 final description = session["description"];
                 return ListTile(
@@ -70,21 +73,16 @@ class _CustomerSessionState extends State<CustomerSession> {
     try {
       QuerySnapshot userQuery = await FirebaseFirestore.instance
           .collection('Users')
-          .where('email', isEqualTo: user!.email)
+          .where('email', isEqualTo: user.email)
           .limit(1)
           .get();
       print(userQuery.docs.isNotEmpty);
       if (userQuery.docs.isNotEmpty) {
-        // QueryDocumentSnapshot first = userQuery.docs[0];
-        //String nameGroup = first["nameGroup"];
-
-        // Create a query that listens for changes to the 'Session' collection
         Stream<QuerySnapshot> sessionQueryStream =
             FirebaseFirestore.instance.collection('Session').snapshots();
 
         await for (QuerySnapshot sessionQuery in sessionQueryStream) {
           print("Values ${sessionQuery.docs.isNotEmpty}");
-          // Emit the updated list of sessions
           yield sessionQuery.docs
               .map<Map<String, String>>((QueryDocumentSnapshot doc) {
             return {

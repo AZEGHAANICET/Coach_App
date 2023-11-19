@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.1.2 <4.0.0"
+  sdk: ">=2.17.2 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -36,13 +36,15 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.17.0
   firebase_auth: ^4.5.0
-  firebase_storage: ^11.2.8
+  firebase_storage: ^11.5.1
   image_picker: ^1.0.4
-  cloud_firestore: ^4.11.0
+  cloud_firestore: ^4.13.1
   syncfusion_flutter_calendar: ^23.1.41
   animated_bottom_navigation_bar: ^1.2.4
   date_field: ^3.0.5
   font_awesome_flutter: ^10.6.0
+  table_calendar: ^3.0.9
+  flutter_time_picker_spinner: ^2.0.0
 
 dev_dependencies:
   flutter_test:
