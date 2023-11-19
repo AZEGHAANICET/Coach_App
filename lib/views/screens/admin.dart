@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_coach_app/screens/disponibilite_coach.dart';
-import 'package:flutter_coach_app/screens/home_coach.dart';
-import 'package:flutter_coach_app/screens/profile.dart';
-import 'package:flutter_coach_app/screens/session_coach.dart';
+import 'package:flutter_coach_app/views/screens/coach/disponibilite_coach.dart';
+import 'package:flutter_coach_app/views/screens/coach/home_coach.dart';
+import 'package:flutter_coach_app/views/screens/common/profile.dart';
+import 'package:flutter_coach_app/views/screens/coach/session_coach.dart';
 
 class Admin extends StatefulWidget {
   const Admin({super.key});

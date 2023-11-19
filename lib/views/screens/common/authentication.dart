@@ -3,9 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_coach_app/repository/user_repository.dart';
 
 import 'package:flutter_coach_app/widgets/user_picker_image.dart';
-import 'package:flutter_coach_app/screens/authentication_service.dart';
+import 'package:flutter_coach_app/service/authentication_service.dart';
 
 final AuthService _authService = AuthService();
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -20,6 +21,24 @@ class AuthenticationScreen extends StatefulWidget {
 }
 
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
+  Future<List<Map<String, dynamic>>> getUsersFromFireStore() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection("users").get();
+      List<Map<String, dynamic>> usersList = [];
+
+      for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        Map<String, dynamic> userData =
+            documentSnapshot.data() as Map<String, dynamic>;
+        usersList.add(userData);
+      }
+      return usersList;
+    } catch (e) {
+      print("Erreur de communication avec le serveur $e");
+      return [];
+    }
+  }
+
   var _isLogin = true;
   var _isAuthenticated = false;
   var _emailEnter = '';
@@ -41,29 +60,32 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     setState(() {
       _isAuthenticated = true;
     });
-
+    print("Akalo");
     if (!_isLogin) {
       try {
         final userCredential = await _auth.createUserWithEmailAndPassword(
           email: _emailEnter,
           password: _password,
         );
-        final storageUser = FirebaseStorage.instance
+        final storageRef = FirebaseStorage.instance
             .ref()
             .child('user_images')
             .child('${userCredential.user!.uid}.jpg');
-        storageUser.putFile(_selectedImage!);
-        final imageUrl = await storageUser.getDownloadURL();
+        print('firesotre');
+        await storageRef.putFile(_selectedImage!);
+        final imageUrl = await storageRef.getDownloadURL();
         await FirebaseFirestore.instance
-            .collection('users')
+            .collection("users")
             .doc(userCredential.user!.uid)
             .set({
           'username': _enteredUsername,
           'email': _emailEnter,
-          'image_url': imageUrl,
-          'nomgroupe': ''
+          'image': imageUrl,
+          'group': 'default'
         });
-        await sendEmailVerification(_emailEnter);
+        print(UserRepository.createUserInFirestore(
+            "", _emailEnter, _enteredUsername));
+        // await sendEmailVerification(_emailEnter);
 
         _scaffoldMessengerKey.currentState?.showSnackBar(
           const SnackBar(

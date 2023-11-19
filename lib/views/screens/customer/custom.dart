@@ -37,7 +37,6 @@ class _CustomerSessionState extends State<CustomerSession> {
               itemBuilder: (context, index) {
                 final session = sessions[index];
                 final subject = session["subject"];
-                final jour = session["jour"];
                 final date = session["date"];
                 final description = session["description"];
                 return Card(

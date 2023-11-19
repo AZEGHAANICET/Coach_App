@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_coach_app/screens/admin.dart';
-import 'package:flutter_coach_app/screens/customer_screen.dart';
-import 'package:flutter_coach_app/screens/authentication.dart';
+import 'package:flutter_coach_app/views/screens/coach/admin.dart';
+import 'package:flutter_coach_app/views/screens/customer/customer_screen.dart';
+import 'package:flutter_coach_app/views/screens/common/authentication.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -34,7 +34,7 @@ class App extends StatelessWidget {
             return const Text('Une erreur s\'est produite!!');
           }
           if (snapshot.hasData) {
-            bool isAdmin = snapshot.data!.uid == "c2HQG3XN3NOTSaF7emo7N2qS0Cp2";
+            bool isAdmin = snapshot.data!.uid == "tMyhBqHOUAbEBzvMG2XysEeAHJc2";
             return isAdmin ? const Admin() : const CustomerScreen();
           }
           return const AuthenticationScreen();

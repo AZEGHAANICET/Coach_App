@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_coach_app/screens/create_seance.dart';
+import 'package:flutter_coach_app/views/screens/coach/create_seance.dart';
 
 class SessionScreenCoach extends StatefulWidget {
   const SessionScreenCoach({Key? key}) : super(key: key);

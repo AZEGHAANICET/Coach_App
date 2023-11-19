@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_coach_app/model/user.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final StreamController<UserModel?> _userStream =
       StreamController<UserModel>();
   Stream<UserModel?> get userStream => _userStream.stream;

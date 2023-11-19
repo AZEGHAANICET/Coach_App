@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_coach_app/screens/create_group_user.dart';
+import 'package:flutter_coach_app/views/screens/coach/create_group_user.dart';
 
 class HomeCoach extends StatefulWidget {
   const HomeCoach({super.key});
