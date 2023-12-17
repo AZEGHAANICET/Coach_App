@@ -1,8 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_coach_app/model/seance.dart';
 
 class Group {
-  final String nom;
-  final List<DocumentReference> users;
-  final List<DocumentReference> seance;
-  Group(this.nom, this.users, this.seance);
+  final String name;
+  final List<User> users;
+  final List<Session> seance;
+  Group(this.name, this.users, this.seance)
+
+
+
+  toJson(){
+    return {
+      'name':this.name,
+      'users':this.users,
+      'seance':this.seance
+    }
+  }
 }

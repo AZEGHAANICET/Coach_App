@@ -5,4 +5,10 @@ class UserModel {
   final DocumentReference groupe;
 
   UserModel(this.email, this.groupe);
+
+  toJson() {
+    return {
+      'email': this.email,
+    };
+  }
 }

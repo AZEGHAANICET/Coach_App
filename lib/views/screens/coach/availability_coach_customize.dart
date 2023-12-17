@@ -11,43 +11,47 @@ class AvailabilityList extends StatefulWidget {
 
 class _AvailabilityListState extends State<AvailabilityList> {
   Map<String, Map<String, DateTime>> availabilityPeriods = {
-    'Lun': {
+    'Lundi': {
       'start': DateTime.now(),
       'end': DateTime.now().add(Duration(hours: 1)),
     },
-    'Mar': {
+    'Mardi': {
       'start': DateTime.now(),
       'end': DateTime.now().add(Duration(hours: 1)),
     },
-    'Mer': {
+    'Mercredi': {
       'start': DateTime.now(),
       'end': DateTime.now().add(Duration(hours: 1)),
     },
-    'Jeu': {
+    'Jeudi': {
       'start': DateTime.now(),
       'end': DateTime.now().add(Duration(hours: 1)),
     },
-    'Ven': {
+    'Vendredi': {
       'start': DateTime.now(),
       'end': DateTime.now().add(Duration(hours: 1)),
     },
-    'Sam': {
+    'Samedi': {
       'start': DateTime.now(),
       'end': DateTime.now().add(Duration(hours: 1)),
     },
-    'Dim': {
+    'Dimanche': {
       'start': DateTime.now(),
       'end': DateTime.now().add(Duration(hours: 1)),
     },
   };
 
   late DateTime _selectedDate;
-  TextEditingController _periodController = TextEditingController();
+  TextEditingController _durationController = TextEditingController();
+  late DateTime _startTime;
+  late DateTime _endTime;
 
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
+    _startTime = DateTime.now();
+    _endTime = DateTime.now().add(Duration(hours: 1));
   }
 
   @override
@@ -61,11 +65,6 @@ class _AvailabilityListState extends State<AvailabilityList> {
             firstDay: DateTime.now(),
             lastDay: DateTime.now().add(Duration(days: 365)),
             calendarFormat: CalendarFormat.week,
-            // onDaySelected: (day, events, formats) {
-            //   setState(() {
-            //     _selectedDate = day;
-            //   });
-            // },
           ),
           SizedBox(height: 16.0),
           Expanded(
@@ -94,15 +93,25 @@ class _AvailabilityListState extends State<AvailabilityList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Ajouter une nouvelle disponibilité
-          // ...
+          _showAddAvailabilityForm();
         },
         child: Icon(Icons.add),
+        backgroundColor: Colors.orange,
       ),
     );
   }
 
   void _editAvailability(String day, DateTime start, DateTime end) {
+    // Votre logique d'édition ici
+  }
+
+  void _deleteAvailability(String day) {
+    setState(() {
+      availabilityPeriods.remove(day);
+    });
+  }
+
+  void _showAddAvailabilityForm() {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -120,12 +129,28 @@ class _AvailabilityListState extends State<AvailabilityList> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Modifier la disponibilité pour $day',
+                  'Ajouter une disponibilité',
                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 16.0),
+                DropdownButton<String>(
+                  value:
+                      'Lundi', // La valeur sélectionnée, vous pouvez la changer dynamiquement
+                  items: availabilityPeriods.keys.map((String day) {
+                    return DropdownMenuItem<String>(
+                      value: day,
+                      child: Text(day),
+                    );
+                  }).toList(),
+                  onChanged: (String? selectedDay) {
+                    setState(() {
+                      // Mettez à jour la valeur sélectionnée
+                    });
+                  },
+                ),
+                SizedBox(height: 16.0),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text('Heure de début :'),
                     TimePickerSpinner(
@@ -133,22 +158,22 @@ class _AvailabilityListState extends State<AvailabilityList> {
                       normalTextStyle:
                           TextStyle(fontSize: 16, color: Colors.grey),
                       highlightedTextStyle:
-                          TextStyle(fontSize: 20, color: Colors.black),
-                      spacing: 40,
-                      itemHeight: 60,
+                          TextStyle(fontSize: 24, color: Colors.black),
+                      spacing: 50,
+                      itemHeight: 80,
                       isForce2Digits: true,
                       onTimeChange: (time) {
                         setState(() {
-                          availabilityPeriods[day]!['start'] = time;
+                          _startTime = time;
                         });
                       },
-                      time: start,
+                      time: _startTime,
                     ),
                   ],
                 ),
                 SizedBox(height: 16.0),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Heure de fin :'),
                     TimePickerSpinner(
@@ -156,41 +181,25 @@ class _AvailabilityListState extends State<AvailabilityList> {
                       normalTextStyle:
                           TextStyle(fontSize: 16, color: Colors.grey),
                       highlightedTextStyle:
-                          TextStyle(fontSize: 20, color: Colors.black),
-                      spacing: 40,
-                      itemHeight: 60,
+                          TextStyle(fontSize: 24, color: Colors.black),
+                      spacing: 50,
+                      itemHeight: 80,
                       isForce2Digits: true,
                       onTimeChange: (time) {
                         setState(() {
-                          availabilityPeriods[day]!['end'] = time;
+                          _endTime = time;
                         });
                       },
-                      time: end,
+                      time: _endTime,
                     ),
                   ],
                 ),
                 SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
-                    // Mettez à jour les données de disponibilité ici
-                    Navigator.pop(context);
-                    // Mise à jour de la liste après modification
-                    setState(() {});
+                    _saveAvailability();
                   },
                   child: Text('Enregistrer'),
-                ),
-                SizedBox(height: 8.0),
-                TextButton(
-                  onPressed: () {
-                    _deleteAvailability(day);
-                    Navigator.pop(context);
-                    // Mise à jour de la liste après suppression
-                    setState(() {});
-                  },
-                  style: TextButton.styleFrom(
-                    primary: Colors.red,
-                  ),
-                  child: Text('Supprimer cette disponibilité'),
                 ),
               ],
             ),
@@ -200,10 +209,43 @@ class _AvailabilityListState extends State<AvailabilityList> {
     );
   }
 
-  void _deleteAvailability(String day) {
+  void _saveAvailability() {
+    // Vérifier si la durée est valide
+    double duration = double.tryParse(_durationController.text) ?? 0.0;
+    if (duration <= 0) {
+      // Afficher un message d'erreur si la durée n'est pas valide
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Veuillez entrer une durée valide.'),
+        ),
+      );
+      return;
+    }
+
+    // Ajouter la nouvelle disponibilité à la liste
+    String selectedDay =
+        'Lundi'; // Remplacez cela par la valeur réelle sélectionnée dans le dropdown
+    DateTime start = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _startTime.hour,
+      _startTime.minute,
+    );
+    DateTime end = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _endTime.hour,
+      _endTime.minute,
+    );
+
     setState(() {
-      availabilityPeriods.remove(day);
+      availabilityPeriods[selectedDay] = {'start': start, 'end': end};
     });
+
+    // Fermer le formulaire
+    Navigator.pop(context);
   }
 }
 
@@ -230,18 +272,17 @@ class AvailabilityListItem extends StatelessWidget {
       child: ListTile(
         title: Text('Jour: $day'),
         subtitle: Text(
-            'Heure de début: ${start.hour}:${start.minute}, Heure de fin: ${end.hour}:${end.minute}'),
+          'Heure de début: ${start.hour}:${start.minute}, Heure de fin: ${end.hour}:${end.minute}',
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(Icons.edit,
-                  color: Colors.blue), // Couleur bleue pour l'icône "Edit"
+              icon: Icon(Icons.edit, color: Colors.blue),
               onPressed: onEdit,
             ),
             IconButton(
-              icon: Icon(Icons.delete,
-                  color: Colors.red), // Couleur rouge pour l'icône "Delete"
+              icon: Icon(Icons.delete, color: Colors.red),
               onPressed: onDelete,
             ),
           ],

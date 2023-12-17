@@ -147,7 +147,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     return MaterialApp(
         scaffoldMessengerKey: _scaffoldMessengerKey,
         home: Scaffold(
-          backgroundColor: Color(0xFF3498db),
+          backgroundColor: Color.fromARGB(255, 57, 86, 112),
           body: SingleChildScrollView(
               child: Column(
             children: [
