@@ -5,15 +5,9 @@ class Group {
   final String name;
   final List<User> users;
   final List<Session> seance;
-  Group(this.name, this.users, this.seance)
+  Group(this.name, this.users, this.seance);
 
-
-
-  toJson(){
-    return {
-      'name':this.name,
-      'users':this.users,
-      'seance':this.seance
-    }
+  toJson() {
+    return {'name': this.name, 'users': this.users, 'seance': this.seance};
   }
 }
