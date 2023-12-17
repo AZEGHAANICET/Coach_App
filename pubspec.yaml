@@ -45,6 +45,7 @@ dependencies:
   font_awesome_flutter: ^10.6.0
   table_calendar: ^3.0.9
   flutter_time_picker_spinner: ^2.0.0
+  flutter_xlider: ^3.5.0
 
 dev_dependencies:
   flutter_test:
