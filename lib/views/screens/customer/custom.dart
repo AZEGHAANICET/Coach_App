@@ -69,6 +69,8 @@ class _CustomerSessionState extends State<CustomerSession> {
           .limit(1)
           .get();
 
+      print(userQuery);
+
       if (userQuery.docs.isNotEmpty) {
         QueryDocumentSnapshot first = userQuery.docs[0];
         String nameGroup = first["nameGroupe"];

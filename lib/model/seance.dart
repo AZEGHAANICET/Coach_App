@@ -1,17 +1,42 @@
+import 'package:flutter/physics.dart';
+
 class Session {
-  final String name;
-  final String description;
-  final DateTime startDate;
-  final DateTime endDate;
+  String day;
+  String name;
+  String description;
+  String startDate;
+  String typ;
 
-  Session(this.name, this.description, this.startDate, this.endDate);
+  String group;
 
-  tojson() {
+  Session(
+      {required this.day,
+      required this.name,
+      required this.description,
+      required this.startDate,
+      required this.typ,
+      required this.group});
+
+  // Méthode pour convertir la classe en Map (pour la sérialisation en JSON)
+  Map<String, dynamic> toJson() {
     return {
-      'name': this.name,
+      'day': day,
+      'name': name,
       'description': description,
       'startDate': startDate,
-      'endDate': endDate
+      'typ': typ,
+      'group': group
     };
+  }
+
+  factory Session.fromJson(Map<String, dynamic> json) {
+    return Session(
+      day: json['day'],
+      name: json['name'],
+      description: json['description'],
+      startDate: json['startDate'],
+      typ: json['typ'],
+      group: json['group'],
+    );
   }
 }

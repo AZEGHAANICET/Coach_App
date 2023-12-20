@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_coach_app/model/seance.dart';
 import 'package:flutter_coach_app/repository/seance_repository.dart';
+import 'package:flutter_coach_app/service/session.dart';
 
 class CustomerSession extends StatefulWidget {
   @override
@@ -11,22 +13,16 @@ class CustomerSession extends StatefulWidget {
 }
 
 class _CustomerSessionState extends State<CustomerSession> {
-  late Stream<List<Map<String, String>>> sessionsStream;
-
   @override
   void initState() {
     super.initState();
-    sessionsStream = createSessionsStream();
-    sessionsStream = SessionRepository.getSessionFromUser(
-            FirebaseAuth.instance.currentUser as String)
-        as Stream<List<Map<String, String>>>;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<List<Map<String, String>>>(
-        stream: sessionsStream,
+      body: StreamBuilder<List<Session>>(
+        stream: getAllSessionsStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -37,19 +33,18 @@ class _CustomerSessionState extends State<CustomerSession> {
               child: Text('Erreur: ${snapshot.error}'),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            print(snapshot.data);
             return const Center(
               child: Text('Aucune séance pour le moment'),
             );
           } else {
-            List<Map<String, String>> sessions = snapshot.data!;
+            List<Session> sessions = snapshot.data!;
             return ListView.builder(
               itemCount: sessions.length,
               itemBuilder: (context, index) {
                 final session = sessions[index];
-                final subject = session["subject"];
-                final date = session["date"];
-                final description = session["description"];
+                final subject = session.name;
+                final date = session.day;
+                final description = session.description;
                 return ListTile(
                   leading: Icon(
                     Icons.fitness_center,
@@ -64,38 +59,5 @@ class _CustomerSessionState extends State<CustomerSession> {
         },
       ),
     );
-  }
-
-  Stream<List<Map<String, String>>> createSessionsStream() async* {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User? user = auth.currentUser;
-    print(user!.email);
-    try {
-      QuerySnapshot userQuery = await FirebaseFirestore.instance
-          .collection('Users')
-          .where('email', isEqualTo: user.email)
-          .limit(1)
-          .get();
-      print(userQuery.docs.isNotEmpty);
-      if (userQuery.docs.isNotEmpty) {
-        Stream<QuerySnapshot> sessionQueryStream =
-            FirebaseFirestore.instance.collection('Session').snapshots();
-
-        await for (QuerySnapshot sessionQuery in sessionQueryStream) {
-          print("Values ${sessionQuery.docs.isNotEmpty}");
-          yield sessionQuery.docs
-              .map<Map<String, String>>((QueryDocumentSnapshot doc) {
-            return {
-              "jour": doc["jour"] as String,
-              "date": doc["date"] as String,
-              "subject": doc["subject"] as String,
-              "description": doc["description"] as String,
-            };
-          }).toList();
-        }
-      }
-    } catch (e) {
-      print('Erreur lors de la récupération des données : $e');
-    }
   }
 }

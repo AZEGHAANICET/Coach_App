@@ -1,7 +1,9 @@
 import 'package:date_field/date_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_coach_app/model/seance.dart';
 import 'package:flutter_coach_app/repository/seance_repository.dart';
+import 'package:flutter_coach_app/service/session.dart';
 
 class AddSession extends StatefulWidget {
   const AddSession({Key? key}) : super(key: key);
@@ -124,13 +126,14 @@ class _AddSessionState extends State<AddSession> {
                     label: Text("Valider"),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        SessionRepository.createsession(
-                            user!.uid,
-                            nameController.text,
-                            nameController.text,
-                            descriptionController.text,
-                            typeSession.first,
-                            selectedDateSession);
+                        Session mySession = Session(
+                            day: selectedDateSession,
+                            name: nameController.text,
+                            description: descriptionController.text,
+                            startDate: "",
+                            typ: selectedTypeSession,
+                            group: selectedValue);
+                        createSession(mySession);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Création de la séance en cours'),
