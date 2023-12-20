@@ -1,8 +1,9 @@
 import 'package:date_field/date_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_coach_app/model/groupe.dart';
 import 'package:flutter_coach_app/model/seance.dart';
-import 'package:flutter_coach_app/repository/seance_repository.dart';
+import 'package:flutter_coach_app/service/group.dart';
 import 'package:flutter_coach_app/service/session.dart';
 
 class AddSession extends StatefulWidget {
@@ -18,10 +19,16 @@ class _AddSessionState extends State<AddSession> {
   final TextEditingController descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   DateTime selectedDateSession = DateTime.now();
-  List<String> itemList = ['Groupe 1', 'Groupe 2', 'Groupe 3'];
+  List<String> itemList = [];
   List<String> typeSession = ['Force', 'Cardio'];
   String selectedTypeSession = 'Force';
-  String selectedValue = 'Groupe 1';
+  String selectedValue = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchGroups();
+  }
 
   @override
   void dispose() {
@@ -134,6 +141,7 @@ class _AddSessionState extends State<AddSession> {
                             typ: selectedTypeSession,
                             group: selectedValue);
                         createSession(mySession);
+                        addSessionToGroup(selectedValue, mySession);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Création de la séance en cours'),
@@ -156,5 +164,16 @@ class _AddSessionState extends State<AddSession> {
         ),
       ),
     );
+  }
+
+  Future<void> fetchGroups() async {
+    List<Group> groups = await getAllGroup();
+    print(groups);
+
+    setState(() {
+      itemList = groups.map((group) => group.name as String).toList();
+      selectedValue = itemList[0];
+      print("hjfhgfjhgfg $itemList");
+    });
   }
 }

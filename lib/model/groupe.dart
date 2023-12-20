@@ -1,13 +1,36 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_coach_app/model/seance.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Group {
-  final String name;
-  final List<User> users;
-  final List<Session> seance;
-  Group(this.name, this.users, this.seance);
+  dynamic pName;
+  dynamic? id;
+  final List<dynamic> users;
+  List<dynamic> sessions;
+  String get name {
+    return this.pName;
+  }
+
+  void set name(dynamic name) {
+    pName = name;
+  }
+
+  Group(
+      {required this.pName,
+      this.id,
+      required this.users,
+      required this.sessions});
 
   toJson() {
-    return {'name': this.name, 'users': this.users, 'seance': this.seance};
+    return {'name': this.pName, 'users': this.users, 'id': this.id};
+  }
+
+  factory Group.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+    Map<String, dynamic> data = doc.data()!;
+    return Group(
+      id: doc.id,
+      pName: data['name'],
+      users: doc['users'],
+      sessions: doc['sessions'],
+      // Ajoutez d'autres propriétés du groupe au besoin
+    );
   }
 }

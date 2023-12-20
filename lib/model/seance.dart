@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/physics.dart';
 
 class Session {
-  String day;
+  DateTime day;
   String name;
   String description;
   String startDate;
@@ -30,8 +31,10 @@ class Session {
   }
 
   factory Session.fromJson(Map<String, dynamic> json) {
+    Timestamp day = json['day'];
+
     return Session(
-      day: json['day'],
+      day: day.toDate(),
       name: json['name'],
       description: json['description'],
       startDate: json['startDate'],

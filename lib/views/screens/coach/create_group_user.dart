@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_coach_app/model/groupe.dart';
+import 'package:flutter_coach_app/model/seance.dart';
 import 'package:flutter_coach_app/service/group.dart';
 
 class AddGroup extends StatefulWidget {
@@ -9,8 +11,9 @@ class AddGroup extends StatefulWidget {
 }
 
 class _AddGroupState extends State<AddGroup> {
-  List<String> selectedUsers = [];
+  List<dynamic> selectedUsers = [];
   List<bool> isSelectedList = [];
+  List<dynamic> sessions = [];
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +82,12 @@ class _AddGroupState extends State<AddGroup> {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (_, __, ___) =>
-                          CreateGroup(selectedUsers: selectedUsers),
+                      pageBuilder: (_, __, ___) => CreateGroup(
+                          group: Group(
+                              id: 1,
+                              pName: '',
+                              users: selectedUsers,
+                              sessions: sessions)),
                       transitionsBuilder: (_, animation, __, child) {
                         return FadeTransition(
                           opacity: animation,
@@ -133,9 +140,9 @@ class _AddGroupState extends State<AddGroup> {
 }
 
 class CreateGroup extends StatelessWidget {
-  final List<String> selectedUsers;
+  final Group group;
 
-  const CreateGroup({Key? key, required this.selectedUsers}) : super(key: key);
+  const CreateGroup({Key? key, required this.group}) : super(key: key);
 
   @override
   @override
@@ -188,7 +195,8 @@ class CreateGroup extends StatelessWidget {
                     label: Text("Valider"),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        createGroup(nameController.text, selectedUsers);
+                        group.name = nameController.text;
+                        createGroup(group);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Création du groupe en cours'),

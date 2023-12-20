@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_coach_app/model/groupe.dart';
+import 'package:flutter_coach_app/model/seance.dart';
 
 Stream<List<Map<String, dynamic>>> getAllUsers() async* {
   try {
@@ -24,14 +24,20 @@ Stream<List<Map<String, dynamic>>> getAllUsers() async* {
   }
 }
 
-Future<void> createGroup(String groupName, List<String> initialUsers) async {
+Future<void> createGroup(Group group) async {
   try {
     DocumentReference groupRef =
         await FirebaseFirestore.instance.collection('groups').add({
-      'name': groupName,
-      'users': initialUsers,
+      'id': group.id,
+      'name': group.name,
+      'users': group.users,
+      'sessions': group.sessions
     });
-    for (String userId in initialUsers) {
+    String groupId = groupRef.id;
+    group.id = groupId;
+    await groupRef.update({'id': groupId});
+
+    for (String userId in group.users) {
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
         'groups': FieldValue.arrayUnion([groupRef.id]),
       });
@@ -76,5 +82,48 @@ Stream<List<Map<String, dynamic>>> getAllGroups() {
   } catch (e) {
     print('Erreur lors de la récupération des groupes : $e');
     return Stream.value([]); // Retourne un Stream vide en cas d'erreur
+  }
+}
+
+Future<List<Group>> getAllGroup() async {
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance.collection('groups').get();
+
+    List<Group> groupsList =
+        querySnapshot.docs.map((doc) => Group.fromFirestore(doc)).toList();
+    print(groupsList.toString());
+    return groupsList;
+  } catch (e) {
+    print('Erreur lors de la récupération des groupes : $e');
+    return []; // Retourne une liste vide en cas d'erreur
+  }
+}
+
+Future<void> modifyGroupSessions(
+    String groupName, List<Session> newSessions) async {
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('groups')
+        .where('name', isEqualTo: groupName)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot<Map<String, dynamic>> groupDoc =
+          querySnapshot.docs.first;
+      List<dynamic> currentSessions = groupDoc['sessions'] ?? [];
+
+      // Mettre à jour la liste des séances
+      currentSessions
+          .addAll(newSessions.map((session) => session.toJson()).toList());
+
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(groupDoc.id)
+          .update({'sessions': currentSessions});
+    }
+  } catch (e) {
+    print('Erreur lors de la modification des séances du groupe : $e');
   }
 }
