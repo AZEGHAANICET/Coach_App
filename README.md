@@ -1,7 +1,6 @@
 # flutter_coach_app
 
-A new Flutter project.
-
+Coach App est une application mobile permet à un coach sportif de gérer ses clients 
 ## Getting Started
 
 This project is a starting point for a Flutter application.
