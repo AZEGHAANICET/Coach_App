@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_coach_app/model/user.dart';
+import 'package:flutter_coach_app/service/authentication_service.dart';
 import 'package:flutter_coach_app/views/screens/coach/availability_coach.dart';
 import 'package:flutter_coach_app/views/screens/coach/create_group_user.dart';
 import 'package:flutter_coach_app/views/screens/common/settings.dart';
@@ -16,6 +18,27 @@ class CustomerScreen extends StatefulWidget {
 }
 
 class _CustomerScreenState extends State<CustomerScreen> {
+  String userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    getUserModel();
+  }
+
+  void getUserModel() async {
+    try {
+      UserModel customer = await getUserByEmail(
+          FirebaseAuth.instance.currentUser!.email.toString());
+      setState(() {
+        userName = customer.username; // Set the userName
+      });
+    } catch (e) {
+      print('Error fetching user: $e');
+      // Handle the error as needed
+    }
+  }
+
   int _currentIndex = 0;
   setCurrentPage(int index) {
     setState(() {
@@ -29,7 +52,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
         home: Scaffold(
       appBar: AppBar(
           title: [
-            Text('Accueil'),
+            Text('Welcome $userName'),
             Text('Planing'),
             Text('Profile')
           ][_currentIndex],
@@ -108,11 +131,11 @@ class _CustomerScreenState extends State<CustomerScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available),
-            label: "Disponibilité",
+            label: "Disponibilité coach",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
+            icon: Icon(Icons.cancel),
+            label: "Seance(s) annulée(s)",
           ),
         ],
       ),

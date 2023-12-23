@@ -46,6 +46,8 @@ dependencies:
   table_calendar: ^3.0.9
   flutter_time_picker_spinner: ^2.0.0
   flutter_xlider: ^3.5.0
+  intl: ^0.18.1
+  lottie: ^2.7.0
 
 dev_dependencies:
   flutter_test:

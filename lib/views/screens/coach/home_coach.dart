@@ -60,11 +60,22 @@ class GroupListWidget extends StatelessWidget {
           itemBuilder: (context, index) {
             Map<String, dynamic> userGroup = userGroups[index];
             String groupName = userGroup['name'];
-            // Vous pouvez ajouter d'autres champs ici en fonction de votre modèle de données
+            String description = userGroup['description'];
 
             return ListTile(
-              title: Text(groupName),
-              // Ajoutez d'autres widgets ici pour afficher d'autres informations sur le groupe des utilisateurs
+              contentPadding: EdgeInsets.all(5), // Espacement interne
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5), // Rayon de la bordure
+                side: BorderSide(
+                  color: Color.fromARGB(31, 223, 219, 219),
+                ), // Bordure latérale
+              ),
+              leading: Icon(Icons.group),
+              title: Text(
+                groupName,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(description),
             );
           },
         );

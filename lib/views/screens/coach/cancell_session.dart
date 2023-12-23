@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_coach_app/model/seance.dart';
-import 'package:flutter_coach_app/service/session.dart';
-import 'package:flutter_coach_app/views/screens/coach/create_seance.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; // Import pour utiliser DateFormat
+import 'package:flutter_coach_app/service/session.dart'; // Assurez-vous d'importer votre service de sessions
 
-class SessionScreenCoach extends StatefulWidget {
-  const SessionScreenCoach({Key? key}) : super(key: key);
+class CancelSession extends StatefulWidget {
+  const CancelSession({Key? key});
 
   @override
-  State<SessionScreenCoach> createState() => _SessionScreenCoachState();
+  State<CancelSession> createState() => _MyWidgetState();
 }
 
-class _SessionScreenCoachState extends State<SessionScreenCoach> {
+class _MyWidgetState extends State<CancelSession> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<List<Session>>(
-        stream: getSessionsByStatusStream("Yes"),
+        stream: getSessionsByStatusStream("No"),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -117,12 +116,9 @@ class _SessionScreenCoachState extends State<SessionScreenCoach> {
                                           : Colors.blue,
                                     ),
                                     OutlinedButton(
-                                      onPressed: () {
-                                        print("dfdf" + session.id!);
-                                        updateSessionStatus(session.id!, "No");
-                                      },
+                                      onPressed: () {},
                                       child: Text(
-                                        'Annuler',
+                                        'Details',
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
@@ -143,27 +139,6 @@ class _SessionScreenCoachState extends State<SessionScreenCoach> {
             );
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const AddSession(),
-              transitionsBuilder: (_, animation, __, child) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-              transitionDuration: Duration(milliseconds: 500),
-            ),
-          );
-        },
-        child: const Icon(
-          Icons.add,
-        ),
-        backgroundColor: Colors.orange,
       ),
     );
   }

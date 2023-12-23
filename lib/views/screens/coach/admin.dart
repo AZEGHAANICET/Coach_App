@@ -2,13 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_coach_app/views/screens/coach/availability_coach.dart';
 import 'package:flutter_coach_app/views/screens/coach/availability_coach_customize.dart';
-import 'package:flutter_coach_app/views/screens/coach/disponibilite_coach.dart';
+import 'package:flutter_coach_app/views/screens/coach/cancell_session.dart';
 import 'package:flutter_coach_app/views/screens/coach/home_coach.dart';
-import 'package:flutter_coach_app/views/screens/common/profile.dart';
 import 'package:flutter_coach_app/views/screens/coach/session_coach.dart';
+import 'package:flutter_coach_app/views/screens/common/profile.dart';
+import 'package:flutter_coach_app/views/screens/common/settings.dart';
 
 class Admin extends StatefulWidget {
-  const Admin({super.key});
+  const Admin({Key? key}) : super(key: key);
 
   @override
   _AdminState createState() => _AdminState();
@@ -27,18 +28,69 @@ class _AdminState extends State<Admin> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Welcome Coach Loïc'),
+        title: Row(
+          children: [
+            const Text('Welcome Coach Loïc'),
+          ],
+        ),
         actions: [
           IconButton(
-              onPressed: () {
-                showSearch(context: context, delegate: CustomSearchDelegate());
-              },
-              icon: const Icon(Icons.search)),
-          IconButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-              },
-              icon: const Icon(Icons.exit_to_app)),
+            onPressed: () {
+              showSearch(context: context, delegate: CustomSearchDelegate());
+            },
+            icon: const Icon(Icons.search),
+          ),
+          PopupMenuButton<String>(
+            color: const Color.fromARGB(255, 20, 214, 43),
+            icon: const Icon(Icons.more_vert),
+            offset: const Offset(22, 50),
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'Paramètres',
+                  child: ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: const Text('Paramètres'),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (_, __, ___) => const Setting(),
+                        transitionsBuilder: (_, animation, __, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 500),
+                      ),
+                    );
+                  },
+                ),
+                PopupMenuItem<String>(
+                  value: 'Deconnexion',
+                  child: ListTile(
+                    leading: const Icon(Icons.exit_to_app),
+                    title: const Text('Deconnexion'),
+                  ),
+                  onTap: () {
+                    FirebaseAuth.instance.signOut();
+                  },
+                ),
+                PopupMenuItem<String>(
+                  value: 'Infos',
+                  child: ListTile(
+                    leading: const Icon(Icons.info),
+                    title: const Text('Infos'),
+                  ),
+                ),
+              ];
+            },
+            onSelected: (value) {
+              performAction(value);
+            },
+          ),
         ],
         backgroundColor: const Color.fromRGBO(255, 152, 0, 1),
         bottom: TabBar(
@@ -46,26 +98,26 @@ class _AdminState extends State<Admin> with SingleTickerProviderStateMixin {
           tabs: const [
             Tab(icon: Icon(Icons.home)),
             Tab(
-              child: Text('Séance'),
+              child: Text(
+                'Séance(s)',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
+            Tab(child: Icon(Icons.access_time, color: Colors.green)),
             Tab(
-              child: Text('Disponibilité'),
-            ),
-            Tab(
-              child: Text('Mon profile'),
-            )
+                child: Row(
+              children: [Icon(Icons.cancel, color: Colors.red)],
+            ))
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: const [
-          // Tab 1 content
           HomeCoach(),
           SessionScreenCoach(),
           AvailabilityList(),
-          //Disponibilite(),
-          Profile()
+          CancelSession()
         ],
       ),
     );
@@ -89,7 +141,7 @@ class CustomSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
         close(context, '');
       },
@@ -123,7 +175,7 @@ class CustomSearchDelegate extends SearchDelegate<String> {
     // Actions à droite de la barre de recherche (effacer le texte, etc.)
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -138,4 +190,14 @@ class CustomSearchDelegate extends SearchDelegate<String> {
       child: Text('Résultats pour "$query"'),
     );
   }
+
+  void performAction(String action) {
+    print('Performing action: $action');
+    // Add logic to perform the selected action
+  }
+}
+
+void performAction(String action) {
+  print('Performing action: $action');
+  // Add logic to perform the selected action
 }

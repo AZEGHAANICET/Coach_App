@@ -20,7 +20,7 @@ Stream<List<Map<String, dynamic>>> getAllUsers() async* {
     }
   } catch (e) {
     print('Erreur lors de la récupération des utilisateurs : $e');
-    yield []; // Utilisation de yield pour émettre une liste vide en cas d'erreur
+    yield [];
   }
 }
 
@@ -31,11 +31,13 @@ Future<void> createGroup(Group group) async {
       'id': group.id,
       'name': group.name,
       'users': group.users,
-      'sessions': group.sessions
+      'sessions': group.sessions,
+      'description': group.description
     });
     String groupId = groupRef.id;
     group.id = groupId;
     await groupRef.update({'id': groupId});
+    print(groupRef);
 
     for (String userId in group.users) {
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
@@ -100,30 +102,28 @@ Future<List<Group>> getAllGroup() async {
   }
 }
 
-Future<void> modifyGroupSessions(
-    String groupName, List<Session> newSessions) async {
+Future<bool> isGroupNameExists(String groupName) async {
   try {
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
-        .instance
-        .collection('groups')
-        .where('name', isEqualTo: groupName)
-        .get();
+    // Référence à la collection 'groups'
+    CollectionReference groups =
+        FirebaseFirestore.instance.collection('groups');
 
-    if (querySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot<Map<String, dynamic>> groupDoc =
-          querySnapshot.docs.first;
-      List<dynamic> currentSessions = groupDoc['sessions'] ?? [];
+    // Récupération des documents dans la collection
+    QuerySnapshot querySnapshot = await groups.get();
 
-      // Mettre à jour la liste des séances
-      currentSessions
-          .addAll(newSessions.map((session) => session.toJson()).toList());
-
-      await FirebaseFirestore.instance
-          .collection('groups')
-          .doc(groupDoc.id)
-          .update({'sessions': currentSessions});
+    // Vérification de l'existence du nom dans les documents
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      if (doc['name'] == groupName) {
+        // Le nom existe déjà
+        return true;
+      }
     }
-  } catch (e) {
-    print('Erreur lors de la modification des séances du groupe : $e');
+
+    // Le nom n'existe pas
+    return false;
+  } catch (e, stackTrace) {
+    print(
+        'Erreur lors de la vérification de l\'existence du nom : $e\n$stackTrace');
+    throw Exception('Erreur lors de la vérification de l\'existence du nom');
   }
 }

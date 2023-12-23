@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_coach_app/model/groupe.dart';
-import 'package:flutter_coach_app/model/seance.dart';
 import 'package:flutter_coach_app/service/group.dart';
 
 class AddGroup extends StatefulWidget {
@@ -12,15 +11,15 @@ class AddGroup extends StatefulWidget {
 
 class _AddGroupState extends State<AddGroup> {
   List<dynamic> selectedUsers = [];
-  List<bool> isSelectedList = [];
   List<dynamic> sessions = [];
+  String description = "";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        title: Text('Sélectionné des Utilisateurs'),
+        title: Text('Sélectionner des Utilisateurs'),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: getAllUsers(),
@@ -38,7 +37,6 @@ class _AddGroupState extends State<AddGroup> {
           }
 
           List<Map<String, dynamic>> users = snapshot.data!;
-          isSelectedList = List.generate(users.length, (index) => false);
 
           return ListView.builder(
             itemCount: users.length,
@@ -47,47 +45,53 @@ class _AddGroupState extends State<AddGroup> {
               String id = userData["id"];
               String username = userData['username'];
               String subtitle = userData['email'];
-              bool isSelected = isSelectedList[index];
+              bool isSelected = selectedUsers.contains(id);
 
               return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(userData['image']),
-                    backgroundColor: Colors.transparent,
-                  ),
-                  title: Text(username),
-                  subtitle: Text(subtitle),
-                  onTap: () {
-                    setState(() {
-                      if (selectedUsers.contains(username)) {
-                        isSelectedList[index] = false;
-                        print("User remove");
-                        selectedUsers.remove(id);
-                      } else {
-                        isSelectedList[index] = true;
-                        selectedUsers.add(id);
-                      }
-                    });
-                  },
-                  tileColor: isSelected ? Colors.blue.withOpacity(0.3) : null);
+                leading: isSelected
+                    ? Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      )
+                    : CircleAvatar(
+                        backgroundImage: NetworkImage(userData['image']),
+                        backgroundColor: Colors.transparent,
+                      ),
+                title: Text(username),
+                subtitle: Text(subtitle),
+                onTap: () {
+                  setState(() {
+                    if (isSelected) {
+                      selectedUsers.remove(id);
+                    } else {
+                      selectedUsers.add(id);
+                    }
+                  });
+                },
+                tileColor: isSelected ? Colors.blue.withOpacity(0.3) : null,
+              );
             },
           );
         },
       ),
-      floatingActionButton: (selectedUsers.length > 0)
+      floatingActionButton: (selectedUsers.isNotEmpty)
           ? FloatingActionButton(
               backgroundColor: Colors.orange,
               onPressed: () {
-                // Valider le choix et notifier les utilisateurs sélectionnés
                 if (selectedUsers.isNotEmpty) {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
                       pageBuilder: (_, __, ___) => CreateGroup(
-                          group: Group(
-                              id: 1,
-                              pName: '',
-                              users: selectedUsers,
-                              sessions: sessions)),
+                        groupNameController: TextEditingController(),
+                        group: Group(
+                          description: '',
+                          id: 1,
+                          pName: '',
+                          users: selectedUsers,
+                          sessions: sessions,
+                        ),
+                      ),
                       transitionsBuilder: (_, animation, __, child) {
                         return FadeTransition(
                           opacity: animation,
@@ -110,45 +114,21 @@ class _AddGroupState extends State<AddGroup> {
           : null,
     );
   }
-
-  void _showConfirmationDialog(String name, List<String> users) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirmation'),
-          content:
-              Text('Voulez-vous ajouter ces utilisateurs à votre groupe ?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Annuler'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Valider'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
 class CreateGroup extends StatelessWidget {
   final Group group;
+  final TextEditingController groupNameController;
 
-  const CreateGroup({Key? key, required this.group}) : super(key: key);
+  const CreateGroup({
+    Key? key,
+    required this.group,
+    required this.groupNameController,
+  }) : super(key: key);
 
-  @override
   @override
   Widget build(BuildContext context) {
-    TextEditingController descriptionController = new TextEditingController();
-    TextEditingController nameController = new TextEditingController();
+    TextEditingController descriptionController = TextEditingController();
     final _formKey = GlobalKey<FormState>();
     return Scaffold(
       appBar: AppBar(
@@ -163,6 +143,7 @@ class CreateGroup extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
+                controller: groupNameController,
                 decoration: InputDecoration(
                   labelText: 'Nom du groupe',
                   hintText: 'Attribuez un nom à ce groupe',
@@ -174,7 +155,6 @@ class CreateGroup extends StatelessWidget {
                   }
                   return null;
                 },
-                controller: nameController,
               ),
               SizedBox(height: 10),
               TextFormField(
@@ -195,7 +175,8 @@ class CreateGroup extends StatelessWidget {
                     label: Text("Valider"),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        group.name = nameController.text;
+                        group.name = groupNameController.text;
+                        group.description = descriptionController.text;
                         createGroup(group);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -207,10 +188,10 @@ class CreateGroup extends StatelessWidget {
                     },
                     icon: Icon(Icons.done),
                     style: ButtonStyle(
-                        padding: MaterialStatePropertyAll(EdgeInsets.only(
-                            top: 5, bottom: 5, left: 20, right: 20)),
-                        backgroundColor:
-                            MaterialStatePropertyAll(Colors.orange)),
+                      padding: MaterialStateProperty.all(EdgeInsets.only(
+                          top: 5, bottom: 5, left: 20, right: 20)),
+                      backgroundColor: MaterialStateProperty.all(Colors.orange),
+                    ),
                   ),
                 ),
               ),

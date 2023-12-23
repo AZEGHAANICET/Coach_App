@@ -31,9 +31,8 @@ class _CustomerSessionState extends State<CustomerSession> {
     return Scaffold(
       body: StreamBuilder<List<Session>>(
         // Utiliser le flux pour récupérer les sessions de l'utilisateur actuel
-        stream: getSessionsStreamForCurrentUser(
-          FirebaseAuth.instance.currentUser!.uid,
-        ),
+        stream: getSessionsForCurrentUserStream(
+            FirebaseAuth.instance.currentUser!.uid, "Yes"),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Afficher un indicateur de chargement pendant le chargement des données
@@ -54,7 +53,6 @@ class _CustomerSessionState extends State<CustomerSession> {
           } else {
             // Afficher la liste des séances
             List<Session> sessions = snapshot.data!;
-            print("dhjfhdjfhdfjdh f$sessions");
             return ListView.builder(
               itemCount: sessions.length,
               itemBuilder: (context, index) {
@@ -62,14 +60,39 @@ class _CustomerSessionState extends State<CustomerSession> {
                 final subject = session.name;
                 final date = session.day.toLocal(); // Convertir en heure locale
                 final description = session.description;
+                final typ = session.typ;
                 return ListTile(
-                  leading: Icon(
-                    Icons.fitness_center,
-                    color: Colors.red,
-                  ),
-                  title: Text("$subject  $date"),
-                  subtitle: Text("$description"),
-                );
+                    onTap: () => print("On tap"),
+                    contentPadding: EdgeInsets.all(5), // Espacement interne
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(5), // Rayon de la bordure
+                      side: BorderSide(color: Colors.black), // Bordure latérale
+                    ),
+                    leading: typ == 'Force'
+                        ? Icon(
+                            Icons.fitness_center,
+                            color: Colors.red,
+                          )
+                        : Icon(
+                            Icons.run_circle,
+                            color: Colors.blue,
+                          ),
+                    title: Text(
+                      "$subject",
+                      style: TextStyle(
+                          color: Colors.green, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Cette séance se deroulera le ( $date )",
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ));
               },
             );
           }
